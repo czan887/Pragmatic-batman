@@ -3,10 +3,9 @@ Centralized configuration for Twitter Bot v2.0
 Uses pydantic-settings for environment variable management
 """
 from pydantic_settings import BaseSettings
-from pydantic import Field, field_validator
+from pydantic import Field
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
 
 
 class Settings(BaseSettings):
@@ -51,21 +50,18 @@ class Settings(BaseSettings):
     # Security
     ssl_certfile: str | None = Field(default=None, description="SSL certificate file path")
     ssl_keyfile: str | None = Field(default=None, description="SSL key file path")
-    allowed_origins: list[str] = Field(
-        default=["*"],
-        description="Allowed CORS origins (use * to allow all)"
+    allowed_origins_str: str = Field(
+        default="*",
+        alias="allowed_origins",
+        description="Allowed CORS origins (use * to allow all, or comma-separated list)"
     )
 
-    @field_validator('allowed_origins', mode='before')
-    @classmethod
-    def parse_allowed_origins(cls, v: Any) -> list[str]:
-        """Parse allowed_origins from string or list"""
-        if isinstance(v, str):
-            # Handle "*" or comma-separated values
-            if v == "*":
-                return ["*"]
-            return [origin.strip() for origin in v.split(",") if origin.strip()]
-        return v
+    @property
+    def allowed_origins(self) -> list[str]:
+        """Parse allowed_origins from string to list"""
+        if self.allowed_origins_str == "*":
+            return ["*"]
+        return [origin.strip() for origin in self.allowed_origins_str.split(",") if origin.strip()]
 
     model_config = {
         "env_file": ".env",
