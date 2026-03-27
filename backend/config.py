@@ -51,8 +51,8 @@ class Settings(BaseSettings):
     ssl_certfile: str | None = Field(default=None, description="SSL certificate file path")
     ssl_keyfile: str | None = Field(default=None, description="SSL key file path")
     allowed_origins: list[str] = Field(
-        default=["http://localhost:3000", "http://localhost:3001", "http://10.8.0.1:3000"],
-        description="Allowed CORS origins"
+        default=["*"],
+        description="Allowed CORS origins (use * to allow all)"
     )
 
     model_config = {
