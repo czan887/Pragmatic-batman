@@ -3,9 +3,10 @@ Centralized configuration for Twitter Bot v2.0
 Uses pydantic-settings for environment variable management
 """
 from pydantic_settings import BaseSettings
-from pydantic import Field
+from pydantic import Field, field_validator
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 
 class Settings(BaseSettings):
@@ -54,6 +55,17 @@ class Settings(BaseSettings):
         default=["*"],
         description="Allowed CORS origins (use * to allow all)"
     )
+
+    @field_validator('allowed_origins', mode='before')
+    @classmethod
+    def parse_allowed_origins(cls, v: Any) -> list[str]:
+        """Parse allowed_origins from string or list"""
+        if isinstance(v, str):
+            # Handle "*" or comma-separated values
+            if v == "*":
+                return ["*"]
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
 
     model_config = {
         "env_file": ".env",
