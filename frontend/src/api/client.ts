@@ -81,7 +81,7 @@ api.interceptors.response.use(
 // Profiles API
 export const profilesApi = {
   list: async (): Promise<Profile[]> => {
-    const { data } = await api.get<Profile[]>('/profiles');
+    const { data } = await api.get<Profile[]>('/profiles/');
     return data;
   },
 
@@ -119,7 +119,7 @@ export const profilesApi = {
 // Tasks API
 export const tasksApi = {
   list: async (limit = 100): Promise<Task[]> => {
-    const { data } = await api.get<Task[]>('/tasks', { params: { limit } });
+    const { data } = await api.get<Task[]>('/tasks/', { params: { limit } });
     return data;
   },
 
