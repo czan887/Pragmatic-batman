@@ -52,7 +52,7 @@ export default function Stats() {
     refetchInterval: 30000,
   });
 
-  const { data: trends, isLoading: trendsLoading } = useQuery({
+  const { data: trends } = useQuery({
     queryKey: ['stats', 'trends', trendPeriod],
     queryFn: () => statsApi.getTrends(trendPeriod),
     refetchInterval: 30000,

@@ -70,6 +70,8 @@ export default function UserActions() {
             profile_id: profileId,
             target_username: followFollowersTarget.replace('@', ''),
             batch_size: followFollowersBatchSize,
+            batch_delay_minutes: 5,
+            use_ai_analysis: false,
           })
         )
       );
