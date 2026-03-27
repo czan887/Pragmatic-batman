@@ -1,4 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import { showErrorNotification } from '../services/notificationService';
+import type { ApiErrorResponse } from '../types';
 import type {
   Profile,
   ProfileWithActions,
@@ -44,6 +46,37 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Global error interceptor for showing toast notifications
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError<ApiErrorResponse>) => {
+    // Check if this is a structured error response from our backend
+    if (error.response?.data?.error) {
+      const { code, message, title, suggestion } = error.response.data.error;
+      showErrorNotification(message, title || code, suggestion);
+    } else if (error.response) {
+      // Generic HTTP error
+      const status = error.response.status;
+      const statusText = error.response.statusText;
+      showErrorNotification(
+        `Request failed with status ${status}`,
+        statusText || 'Request Failed'
+      );
+    } else if (error.request) {
+      // Network error - no response received
+      showErrorNotification(
+        'Unable to connect to the server. Please check your connection.',
+        'Connection Error'
+      );
+    } else {
+      // Something else went wrong
+      showErrorNotification(error.message || 'An unexpected error occurred', 'Error');
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 // Profiles API
 export const profilesApi = {

@@ -102,6 +102,36 @@ class ConnectionManager:
         await self.broadcast(update, "profiles")
         await self.broadcast(update, "all")
 
+    async def broadcast_notification(
+        self,
+        notification_type: str,
+        title: str,
+        message: str,
+        error_code: Optional[str] = None
+    ):
+        """
+        Broadcast a system notification for toast display
+
+        Args:
+            notification_type: "error" | "success" | "warning" | "info"
+            title: Short title for the notification
+            message: Detailed message
+            error_code: Optional error code for error notifications
+        """
+        notification = {
+            "type": "notification",
+            "timestamp": datetime.now().isoformat(),
+            "notification_type": notification_type,
+            "title": title,
+            "message": message,
+        }
+        if error_code:
+            notification["error_code"] = error_code
+
+        # Broadcast to all channels so frontend can catch it
+        await self.broadcast(notification, "logs")
+        await self.broadcast(notification, "all")
+
     def get_connection_count(self, channel: str = None) -> int:
         """Get number of active connections"""
         if channel:
@@ -218,3 +248,22 @@ async def test_log(message: str = "Test log message", level: str = "INFO"):
 async def broadcast_log(level: str, message: str, profile_id: Optional[str] = None):
     """Helper to broadcast log from anywhere in the application"""
     await manager.broadcast_log(level, message, profile_id)
+
+
+# Helper function for services to broadcast notifications
+async def broadcast_notification(
+    notification_type: str,
+    title: str,
+    message: str,
+    error_code: Optional[str] = None
+):
+    """
+    Helper to broadcast notification from anywhere in the application
+
+    Args:
+        notification_type: "error" | "success" | "warning" | "info"
+        title: Short title for the notification
+        message: Detailed message
+        error_code: Optional error code for error notifications
+    """
+    await manager.broadcast_notification(notification_type, title, message, error_code)

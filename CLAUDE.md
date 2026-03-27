@@ -19,3 +19,7 @@
 
 - Backend: `cd backend && ./venv/Scripts/python -m uvicorn main:app --host 0.0.0.0 --port 8000`
 - Frontend: `cd frontend && npm run dev`
+
+## Git Commits
+
+- **Never include "Co-Authored-By" or any authored-by Claude messages in commits**

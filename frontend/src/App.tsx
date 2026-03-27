@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import Layout from './components/Layout';
@@ -12,8 +13,21 @@ import PostActions from './pages/PostActions';
 import HashtagActions from './pages/HashtagActions';
 import AccountActions from './pages/AccountActions';
 import Bot from './pages/Bot';
+import { useNotifications } from './contexts/NotificationContext';
+import { useWebSocketNotifications } from './hooks/useWebSocketNotifications';
+import { initNotificationService } from './services/notificationService';
 
 function App() {
+  const notifications = useNotifications();
+
+  // Initialize notification service for axios interceptor
+  useEffect(() => {
+    initNotificationService(notifications);
+  }, [notifications]);
+
+  // Listen for WebSocket notifications
+  useWebSocketNotifications();
+
   return (
     <ErrorBoundary>
       <Routes>

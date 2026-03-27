@@ -1,3 +1,16 @@
+// API Error Response Types
+export interface ApiError {
+  code: string;
+  message: string;
+  title?: string;
+  suggestion?: string;
+}
+
+export interface ApiErrorResponse {
+  success: false;
+  error: ApiError;
+}
+
 // Profile types
 export interface Profile {
   user_id: string;

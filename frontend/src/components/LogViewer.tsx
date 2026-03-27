@@ -10,6 +10,15 @@ interface LogViewerProps {
   showControls?: boolean;
 }
 
+type LogPeriod = 'today' | 'week' | 'month' | 'all';
+
+const periodHours: Record<LogPeriod, number | undefined> = {
+  today: 24,
+  week: 168,    // 7 days
+  month: 720,   // 30 days
+  all: undefined
+};
+
 export default function LogViewer({ maxHeight = '400px', showControls = true }: LogViewerProps) {
   const { logs: wsLogs, connected, clearLogs: clearWsLogs } = useWebSocket({ channel: 'logs' });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -17,14 +26,16 @@ export default function LogViewer({ maxHeight = '400px', showControls = true }: 
   const [searchTerm, setSearchTerm] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [levelFilter, setLevelFilter] = useState<string>('all');
+  const [period, setPeriod] = useState<LogPeriod>('today');
   const [persistedLogs, setPersistedLogs] = useState<LogEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch persisted logs from database on mount
+  // Fetch persisted logs from database based on period
   const fetchPersistedLogs = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await logsApi.getLogs({ limit: 500, hours: 24 });
+      const hours = periodHours[period];
+      const response = await logsApi.getLogs({ limit: 1000, hours });
       const logs = response.logs.map((log) => ({
         type: 'log',
         timestamp: log.timestamp,
@@ -40,7 +51,7 @@ export default function LogViewer({ maxHeight = '400px', showControls = true }: 
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [period]);
 
   useEffect(() => {
     fetchPersistedLogs();
@@ -213,6 +224,16 @@ export default function LogViewer({ maxHeight = '400px', showControls = true }: 
                   </button>
                 )}
               </div>
+              <select
+                value={period}
+                onChange={(e) => setPeriod(e.target.value as LogPeriod)}
+                className="px-3 py-2 bg-[#1e2732] border border-[#38444d] rounded-lg text-white text-sm focus:outline-none focus:border-twitter-blue"
+              >
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="all">All Time</option>
+              </select>
               <select
                 value={levelFilter}
                 onChange={(e) => setLevelFilter(e.target.value)}

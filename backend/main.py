@@ -13,6 +13,7 @@ from db.database import init_db, close_db
 from core.playwright_manager import PlaywrightManager
 from api.routes import profiles, tasks, actions, dashboard, websocket, file_import, bot, logs, stats, sessions
 from api.routes import settings as settings_routes
+from api.middleware import register_exception_handlers
 from utils.logger import init_logger_from_settings, set_log_repository
 from db.repositories.log_repo import LogRepository
 
@@ -79,6 +80,9 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Register exception handlers for standardized error responses
+    register_exception_handlers(app)
 
     # API Routes
     app.include_router(
